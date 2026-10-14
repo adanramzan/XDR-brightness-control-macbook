@@ -17,5 +17,6 @@ jobs:
         run: bash XDRBrightness/build.sh
       - name: Verify architectures and signature
         run: |
-          lipo -verify_arch arm64 x86_64 "dist/XDR Brightness.app/Contents/MacOS/XDRBrightness"
+          archs="$(lipo -archs "dist/XDR Brightness.app/Contents/MacOS/XDRBrightness")"
+          [[ " $archs " == *" arm64 "* && " $archs " == *" x86_64 "* ]] || { echo "Not universal: $archs"; exit 1; }
           codesign --verify --deep --strict "dist/XDR Brightness.app"
