@@ -1,0 +1,11 @@
+/build/
+/dist/
+.DS_Store
+*.dmg
+*.xcuserstate
+xcuserdata/
+.env
+.env.*
+*.p12
+*.p8
+*.mobileprovision

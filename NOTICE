@@ -1,0 +1,9 @@
+XDR Brightness is distributed under GNU GPL version 3.
+The EDR Metal overlay approach is adapted from BrightXDR:
+Copyright 2023 Dmitry Starkov. https://github.com/starkdmi/BrightXDR
+The 1-pixel EDR trigger and gamma-table boost technique follows BrightIntosh (GPL-3.0):
+Niklas Rousset. https://github.com/niklasr22/BrightIntosh
+Standalone app, brightness controls, lifecycle handling and tests added in 2026.
+Full corresponding source and build instructions are included in this disk image.
+Media-key event format reference: MediaKeyTap, Copyright (c) 2016 Nicholas Hurden.
+Its MIT license is included in MediaKeyTap-LICENSE.txt.

@@ -1,0 +1,46 @@
+name: Release DMG
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag, such as v1.1.0
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: macos-26
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref_name }}
+          fetch-depth: 0
+      - name: Validate tag
+        run: |
+          [[ "$RELEASE_TAG" == "v$(cat VERSION)" ]] || { echo 'Tag must match VERSION'; exit 1; }
+          git tag --points-at HEAD | /usr/bin/grep -Fx -- "$RELEASE_TAG"
+      - name: Test and build
+        run: |
+          bash scripts/test.sh
+          bash XDRBrightness/build.sh
+      - name: Package DMG and source
+        run: bash scripts/package.sh
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "XDR Brightness ${RELEASE_TAG#v}" --notes-file .github/release-notes.md
+          fi
+          gh release upload "$RELEASE_TAG" dist/*.dmg dist/*-source.tar.gz dist/SHA256SUMS.txt --clobber
+          gh release edit "$RELEASE_TAG" --draft=false
